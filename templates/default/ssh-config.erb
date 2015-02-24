@@ -1,0 +1,11 @@
+Host *
+  ServerAliveInterval 180
+Host github.com
+  User git
+  IdentityFile ~/.ssh/deploy_key
+  StrictHostKeyChecking no
+Host pulsar.hil.unb.ca
+  HostName pulsar.hil.unb.ca
+  User mrrobot
+  IdentityFile ~/.ssh/deploy_key
+  StrictHostKeyChecking no
