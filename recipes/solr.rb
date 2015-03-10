@@ -20,6 +20,6 @@ bash "copy_solr_libs" do
   user "root"
   cwd "/tmp"
   code <<-EOH
-  cp -rf #{node['drupal']['dir']}/sites/all/modules/search_api_solr/solr-conf/4.x/* #{node['solr']['installpath']}/#{node['solr']['core_name']}/conf/
+  cp -rf #{node['unblibraries-drupal']['deploy-path']}/{node['unblibraries-drupal']['deploy-dir-name']}/sites/all/modules/search_api_solr/solr-conf/4.x/* #{node['solr']['installpath']}/#{node['solr']['core_name']}/conf/
   EOH
 end
