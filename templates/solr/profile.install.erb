@@ -1,0 +1,11 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the testing profile.
+ */
+function unb_chef_standard_install() {
+ include_once DRUPAL_ROOT . '/profiles/standard/standard.install';
+ standard_install();
+ theme_enable('open_framework');
+ variable_set('theme_default', 'open_framework');
+}
