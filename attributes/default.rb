@@ -14,8 +14,6 @@ default['unblibraries-drupal']['db']['database'] = 'drupal'
 default['unblibraries-drupal']['db']['user'] = 'drupal'
 default['unblibraries-drupal']['db']['password'] = 'drupal'
 
-default['unblibraries-drupal']['install-profile-slug'] = 'default'
-
 ## Site Clone
 # Refspec of the site profile repo to build.
 default['unblibraries-drupal']['makefile-build-refspec'] = 'HEAD'
