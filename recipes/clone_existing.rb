@@ -56,21 +56,44 @@ if keys["deploy_key_private"]
     EOH
   end
 
+  mysql_connection = ({
+    :host => node['unblibraries-mysql']['mysql']['host'],
+    :port => node['unblibraries-mysql']['mysql']['port'],
+    :username => 'root',
+    :password => node['unblibraries-mysql']['mysql']['server_root_password']})
+
+  mysql_database node['unblibraries-drupal']['db']['database'] do
+    connection mysql_connection
+    encoding 'utf8'
+    collation 'utf8_unicode_ci'
+    action :create
+  end
+
+  mysql_database_user node['unblibraries-drupal']['db']['user'] do
+    connection mysql_connection
+    password node['unblibraries-drupal']['db']['password']
+    action :create
+  end
+
+  mysql_database_user node['unblibraries-drupal']['db']['user'] do
+    connection mysql_connection
+    password node['unblibraries-drupal']['db']['password']
+    database_name node['unblibraries-drupal']['db']['database']
+    host node['unblibraries-mysql']['mysql']['host']
+    action :grant
+  end
+
   bash "initialize_drupal_database" do
     user "#{node['unblibraries-drupal']['deploy-user']}"
     cwd "#{node['unblibraries-drupal']['deploy-user-home']}/site-build/settings"
     code <<-EOH
       source #{node['unblibraries-drupal']['deploy-user-home']}/.bashrc
-      # Create Database
-      mysql -S /var/run/mysql-default/mysqld.sock -P3306 -u root -p#{node['unblibraries-mysql']['mysql']['server_root_password']} -e "CREATE DATABASE #{node['unblibraries-drupal']['db']['database']}"
-      mysql -S /var/run/mysql-default/mysqld.sock -P3306 -u root -p#{node['unblibraries-mysql']['mysql']['server_root_password']} -e "GRANT ALL PRIVILEGES ON #{node['unblibraries-drupal']['db']['database']}.* TO '#{node['unblibraries-drupal']['db']['username']}'@'localhost' IDENTIFIED BY '#{node['unblibraries-drupal']['db']['password']}'"
-      mysql -S /var/run/mysql-default/mysqld.sock -P3306 -u root -p#{node['unblibraries-mysql']['mysql']['server_root_password']} -e "FLUSH PRIVILEGES"
 
       # Modify and install the settings.php file
       sed -i "s/'database' => '.*',/'database' => '#{node['unblibraries-drupal']['db']['database']}',/g" settings.php
       sed -i "s/'username' => '.*',/'username' => '#{node['unblibraries-drupal']['db']['user']}',/g" settings.php
       sed -i "s/'password' => '.*',/'password' => '#{node['unblibraries-drupal']['db']['password']}',/g" settings.php
-      sed -i "s/'host' => '.*',/'host' => 'localhost',/g" settings.php
+      sed -i "s/'host' => '.*',/'host' => '#{node['unblibraries-mysql']['mysql']['host']}',/g" settings.php
       sed -i "/\$base_url/d" settings.php
       rsync settings.php #{node['unblibraries-drupal']['deploy-path']}/#{node['unblibraries-drupal']['deploy-dir-name']}/sites/default
     EOH

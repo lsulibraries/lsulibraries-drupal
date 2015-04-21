@@ -25,15 +25,31 @@ bash 'make_drupal_makefile' do
   EOH
 end
 
-bash 'initialize_drupal_database' do
-  user node['unblibraries-drupal']['deploy-user']
-  cwd node['unblibraries-drupal']['deploy-user-home']
-  code <<-EOH
-    source #{node['unblibraries-drupal']['deploy-user-home']}/.bashrc
-    mysql -S /var/run/mysql-default/mysqld.sock -P3306 -u root -p#{node['unblibraries-mysql']['mysql']['server_root_password']} -e "CREATE DATABASE #{node['unblibraries-drupal']['db']['database']}"
-    mysql -S /var/run/mysql-default/mysqld.sock -P3306 -u root -p#{node['unblibraries-mysql']['mysql']['server_root_password']} -e "GRANT ALL PRIVILEGES ON #{node['unblibraries-drupal']['db']['database']}.* TO '#{node['unblibraries-drupal']['db']['username']}'@'localhost' IDENTIFIED BY '#{node['unblibraries-drupal']['db']['password']}'"
-    mysql -S /var/run/mysql-default/mysqld.sock -P3306 -u root -p#{node['unblibraries-mysql']['mysql']['server_root_password']} -e "FLUSH PRIVILEGES"
-  EOH
+mysql_connection = ({
+  :host => node['unblibraries-mysql']['mysql']['host'],
+  :port => node['unblibraries-mysql']['mysql']['port'],
+  :username => 'root',
+  :password => node['unblibraries-mysql']['mysql']['server_root_password']})
+
+mysql_database node['unblibraries-drupal']['db']['database'] do
+  connection mysql_connection
+  encoding 'utf8'
+  collation 'utf8_unicode_ci'
+  action :create
+end
+
+mysql_database_user node['unblibraries-drupal']['db']['user'] do
+  connection mysql_connection
+  password node['unblibraries-drupal']['db']['password']
+  action :create
+end
+
+mysql_database_user node['unblibraries-drupal']['db']['user'] do
+  connection mysql_connection
+  password node['unblibraries-drupal']['db']['password']
+  database_name node['unblibraries-drupal']['db']['database']
+  host node['unblibraries-mysql']['mysql']['host']
+  action :grant
 end
 
 directory profile_root_dir do
@@ -59,6 +75,6 @@ bash 'site_install_new_site' do
   code <<-EOH
     source #{node['unblibraries-drupal']['deploy-user-home']}/.bashrc
     # Deploy install profile to drupal tree
-    #{drush_bin} site-install #{node['unblibraries-drupal']['install-profile-name']} --account-name=admin --account-pass=admin --db-url=mysql://#{node['unblibraries-drupal']['db']['user']}:#{node['unblibraries-drupal']['db']['password']}@localhost/#{node['unblibraries-drupal']['db']['database']}
+    #{drush_bin} site-install #{node['unblibraries-drupal']['install-profile-name']} --account-name=admin --account-pass=admin --db-url=mysql://#{node['unblibraries-drupal']['db']['user']}:#{node['unblibraries-drupal']['db']['password']}@#{node['unblibraries-mysql']['mysql']['host']}/#{node['unblibraries-drupal']['db']['database']}
   EOH
 end
