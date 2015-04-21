@@ -25,11 +25,11 @@ bash 'make_drupal_makefile' do
   EOH
 end
 
+
 mysql_connection = ({
-  :host => node['unblibraries-mysql']['mysql']['host'],
-  :port => node['unblibraries-mysql']['mysql']['port'],
+  :host => node['mysql']['bind_address'],
   :username => 'root',
-  :password => node['unblibraries-mysql']['mysql']['server_root_password']})
+  :password => node['mysql']['server_root_password']})
 
 mysql_database node['unblibraries-drupal']['db']['database'] do
   connection mysql_connection
@@ -48,7 +48,7 @@ mysql_database_user node['unblibraries-drupal']['db']['user'] do
   connection mysql_connection
   password node['unblibraries-drupal']['db']['password']
   database_name node['unblibraries-drupal']['db']['database']
-  host node['unblibraries-mysql']['mysql']['host']
+  host node['mysql']['bind_address']
   action :grant
 end
 
@@ -75,6 +75,6 @@ bash 'site_install_new_site' do
   code <<-EOH
     source #{node['unblibraries-drupal']['deploy-user-home']}/.bashrc
     # Deploy install profile to drupal tree
-    #{drush_bin} site-install #{node['unblibraries-drupal']['install-profile-name']} --account-name=admin --account-pass=admin --db-url=mysql://#{node['unblibraries-drupal']['db']['user']}:#{node['unblibraries-drupal']['db']['password']}@#{node['unblibraries-mysql']['mysql']['host']}/#{node['unblibraries-drupal']['db']['database']}
+    #{drush_bin} site-install #{node['unblibraries-drupal']['install-profile-name']} --account-name=admin --account-pass=admin --db-url=mysql://#{node['unblibraries-drupal']['db']['user']}:#{node['unblibraries-drupal']['db']['password']}@localhost/#{node['unblibraries-drupal']['db']['database']}
   EOH
 end

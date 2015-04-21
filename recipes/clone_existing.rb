@@ -57,10 +57,9 @@ if keys["deploy_key_private"]
   end
 
   mysql_connection = ({
-    :host => node['unblibraries-mysql']['mysql']['host'],
-    :port => node['unblibraries-mysql']['mysql']['port'],
+    :host => node['mysql']['bind_address'],
     :username => 'root',
-    :password => node['unblibraries-mysql']['mysql']['server_root_password']})
+    :password => node['mysql']['server_root_password']})
 
   mysql_database node['unblibraries-drupal']['db']['database'] do
     connection mysql_connection
@@ -79,7 +78,7 @@ if keys["deploy_key_private"]
     connection mysql_connection
     password node['unblibraries-drupal']['db']['password']
     database_name node['unblibraries-drupal']['db']['database']
-    host node['unblibraries-mysql']['mysql']['host']
+    host node['mysql']['bind_address']
     action :grant
   end
 
@@ -93,7 +92,7 @@ if keys["deploy_key_private"]
       sed -i "s/'database' => '.*',/'database' => '#{node['unblibraries-drupal']['db']['database']}',/g" settings.php
       sed -i "s/'username' => '.*',/'username' => '#{node['unblibraries-drupal']['db']['user']}',/g" settings.php
       sed -i "s/'password' => '.*',/'password' => '#{node['unblibraries-drupal']['db']['password']}',/g" settings.php
-      sed -i "s/'host' => '.*',/'host' => '#{node['unblibraries-mysql']['mysql']['host']}',/g" settings.php
+      sed -i "s/'host' => '.*',/'host' => 'localhost',/g" settings.php
       sed -i "/\$base_url/d" settings.php
       rsync settings.php #{node['unblibraries-drupal']['deploy-path']}/#{node['unblibraries-drupal']['deploy-dir-name']}/sites/default
     EOH
