@@ -78,3 +78,5 @@ bash 'site_install_new_site' do
     #{drush_bin} site-install #{node['unblibraries-drupal']['install-profile-name']} --account-name=admin --account-pass=admin --db-url=mysql://#{node['unblibraries-drupal']['db']['user']}:#{node['unblibraries-drupal']['db']['password']}@localhost/#{node['unblibraries-drupal']['db']['database']}
   EOH
 end
+
+include_recipe 'unblibraries-drupal::xhprof'
