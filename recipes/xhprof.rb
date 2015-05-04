@@ -40,7 +40,13 @@ template '/etc/apache2/conf-available/xhprof.conf' do
   mode '0755'
   owner 'root'
   group 'root'
-  notifies :restart, 'service[apache2]', :delayed
+end
+
+bash 'enable_xhprof_conf' do
+  code <<-EOH
+    a2enconf xhprof
+  EOH
+  notifies :restart, 'service[apache2]', :immediately
 end
 
 bash 'add_devel_enable_xhprof' do
