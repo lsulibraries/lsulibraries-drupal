@@ -54,10 +54,10 @@ bash 'add_devel_enable_xhprof' do
   cwd "#{node['unblibraries-drupal']['deploy-path']}/#{node['unblibraries-drupal']['deploy-dir-name']}"
   code <<-EOH
     source #{node['unblibraries-drupal']['deploy-user-home']}/.bashrc
-    drush dl devel
-    drush en devel
-    drush vset devel_xhprof_enabled 1
-    drush vset devel_xhprof_directory "/usr/share/php"
-    drush vset devel_xhprof_url "/xhprof_html"
+    drush --yes dl devel
+    drush --yes en devel
+    drush --yes vset devel_xhprof_enabled 1
+    drush --yes vset devel_xhprof_directory "/usr/share/php"
+    drush --yes vset devel_xhprof_url "/xhprof_html"
   EOH
 end
