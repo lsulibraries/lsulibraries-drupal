@@ -45,7 +45,7 @@ end
 
 bash 'add_devel_enable_xhprof' do
   user node['unblibraries-drupal']['deploy-user']
-  cwd node['unblibraries-drupal']['deploy-path']
+  cwd "#{node['unblibraries-drupal']['deploy-path']}/#{node['unblibraries-drupal']['deploy-dir-name']}"
   code <<-EOH
     source #{node['unblibraries-drupal']['deploy-user-home']}/.bashrc
     drush dl devel
